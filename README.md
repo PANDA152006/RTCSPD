@@ -7,7 +7,6 @@ This project offers an interactive web-based platform for visualizing stock cand
 - 🔥 **Real-Time Candlestick Charting**: Visualizes stock prices with up-to-date candlestick data.
 - 🔍 **Pattern Detection**: Automatically recognizes common candlestick patterns (e.g., Doji, Hammer, Engulfing).
 - 🔎 **Stock Search Suggestions**: Get autocomplete suggestions for stock ticker symbols.
-- 🤖 **Chatbot Integration**: Engage with a chatbot to access stock information and guidance.
 
 ## 🏗️ Architecture
 
@@ -46,9 +45,7 @@ For an in-depth look at the architecture, refer to the `component_diagram.png` i
 
 4. **Access the App**: Use your VPS IP address to access the backend.
 
-### Frontend Deployment (Netlify)
-
-1. **Deploy the `frontend` Folder**: Upload to **Netlify**.
+### Frontend Deployment (vultr)
 2. **Update Backend URL**: Modify `<iframe>` and API calls in `index.html` to point to the VPS backend.
 
 ## 📂 Project Structure
@@ -74,7 +71,7 @@ stock-candlestick-chart/
 
 ## 🌍 Deployment
 
-1. **Frontend**: Deploy to Netlify by uploading the `frontend` folder.
+1. **Frontend**: Deploy to vultr.
 2. **Backend**: Host on a VPS and run `main.py`.
 3. **Link Frontend to Backend**: Update the API URL in `index.html` to point to your VPS backend.
 
