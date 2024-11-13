@@ -1,3 +1,4 @@
+LIVE WEBSITE LINK: https://rtcsd.netlify.app
 # 📈 Stock Candlestick Chart with Pattern Detection and Chatbot Integration
 
 This project offers an interactive web-based platform for visualizing stock candlestick charts, detecting chart patterns, and interacting through a chatbot interface. The frontend is hosted on **Netlify**, and the backend runs on a **VPS** using **Flask**.
