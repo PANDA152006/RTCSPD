@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Stock Candlestick Chart with Chatbot</title>
+    <title>Stock Candlestick Chart</title>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
     <style>
         body {
@@ -20,302 +20,79 @@
             padding: 30px;
             box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
             border-radius: 12px;
-            overflow: hidden;
         }
         h1 {
             text-align: center;
             color: #343a40;
-            font-size: 2rem;
             margin-bottom: 30px;
         }
         label {
-            font-size: 1.1rem;
-            font-weight: 500;
-            color: #333;
-            margin-bottom: 8px;
             display: block;
+            margin-bottom: 10px;
+            font-weight: 500;
         }
         input[type="text"] {
-            padding: 12px 15px;
             width: 100%;
-            margin-bottom: 15px;
-            font-size: 1rem;
-            border-radius: 8px;
-            border: 1px solid #ced4da;
-            transition: border-color 0.3s ease;
-        }
-        input[type="text"]:focus {
-            border-color: #007bff;
-            outline: none;
-        }
-        .suggestions {
-            border: 1px solid #ced4da;
-            border-radius: 8px;
-            max-height: 200px;
-            overflow-y: auto;
-            background-color: #ffffff;
-            position: absolute;
-            width: 100%;
-            z-index: 999;
-        }
-        .suggestion-item {
             padding: 10px;
-            cursor: pointer;
-        }
-        .suggestion-item:hover {
-            background-color: #f1f1f1;
+            margin-bottom: 20px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
         }
         button {
-            padding: 12px 20px;
-            font-size: 1rem;
+            width: 100%;
+            padding: 10px;
             background-color: #007bff;
             color: white;
             border: none;
             border-radius: 8px;
             cursor: pointer;
-            width: 100%;
-            transition: background-color 0.3s ease;
         }
         button:hover {
             background-color: #0056b3;
         }
         #chart-container {
+            margin-top: 20px;
             text-align: center;
-            margin-top: 30px;
-            transition: opacity 0.5s ease;
         }
         #chart-image {
             display: none;
             max-width: 100%;
-            height: auto;
-            border-radius: 10px;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-        }
-        #chatbot-container {
-            margin-top: 50px;
-            text-align: center;
-            height: 500px;
-            width: 100%;
-            border: 1px solid #ddd;
-            border-radius: 12px;
-            background-color: #f8f9fa;
-            padding: 10px;
-        }
-        iframe {
-            width: 100%;
-            height: 100%;
-            border-radius: 10px;
-            border: none;
-        }
-        .footer {
-            text-align: center;
-            font-size: 0.9rem;
-            color: #6c757d;
-            margin-top: 30px;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>Stock Candlestick Chart with Patterns</h1>
-        
-        <!-- Updated Form with Input for Stock Name -->
-        <form id="ticker-form">
-            <label for="ticker">Start typing a Stock Name:</label>
-            <input type="text" id="ticker" name="ticker" placeholder="Enter stock name (e.g., Wipro)">
-            <button type="submit">Get Chart</button>
-            <div id="suggestions-container" class="suggestions" style="display:none;"></div>
+        <h1>Stock Candlestick Chart</h1>
+        <form id="stock-form">
+            <label for="ticker">Enter Stock Name:</label>
+            <input type="text" id="ticker" name="ticker" placeholder="E.g., Wipro">
+            <button type="submit">Fetch Chart</button>
         </form>
-
         <div id="chart-container">
-            <img id="chart-image" src="" alt="Candlestick Chart">
-        </div>
-
-        <!-- Chatbot UI Embed -->
-        <div id="chatbot-container">
-            <iframe src="http://localhost:8000/chatbot" title="Chatbot UI"></iframe>
-        </div>
-        
-        <!-- Footer -->
-        <div class="footer">
-            <p>Powered by Flask and Python</p>
+            <img id="chart-image" alt="Candlestick Chart">
         </div>
     </div>
 
- <script>
-    // Mapping of stock names to tickers
-    const stockNameToTicker = {
-        "Wipro": "WIPRO.NS",
-        "Reliance Industries": "RELIANCE.NS",
-        "Tata Consultancy Services": "TCS.NS",
-        "Infosys": "INFY.NS",
-        "HDFC Bank": "HDFCBANK.NS",
-        "ICICI Bank": "ICICIBANK.NS",
-        "State Bank of India": "SBIN.NS",
-        "Axis Bank": "AXISBANK.NS",
-        "Larsen & Toubro": "LT.NS",
-        "Maruti Suzuki": "MARUTI.NS",
-        "Hindustan Unilever": "HINDUNILVR.NS",
-        "Bajaj Finance": "BAJFINANCE.NS",
-        "Kotak Mahindra Bank": "KOTAKBANK.NS",
-        "ITC": "ITC.NS",
-        "Titan": "TITAN.NS",
-        "Mahindra & Mahindra": "M&M.NS",
-        "Tech Mahindra": "TECHM.NS",
-        "UltraTech Cement": "ULTRACEMCO.NS",
-        "ONGC": "ONGC.NS",
-        "Sun Pharmaceuticals": "SUNPHARMA.NS",
-        "Bharat Petroleum": "BPCL.NS",
-        "Power Grid": "POWERGRID.NS",
-        "NTPC": "NTPC.NS",
-        "Dr. Reddy's Laboratories": "DRREDDY.NS",
-        "HCL Technologies": "HCLTECH.NS",
-        "Steel Authority of India": "SAIL.NS",
-        "Cipla": "CIPLA.NS",
-        "GAIL": "GAIL.NS",
-        "Adani Green": "ADANIGREEN.NS",
-        "Eicher Motors": "EICHERMOT.NS",
-        "Zee Entertainment": "ZEEL.NS",
-        "Adani Ports": "ADANIPORTS.NS",
-        "Bharti Airtel": "BHARTIARTL.NS",
-        "HDFC Life": "HDFCLIFE.NS",
-        "Mahindra Lifespace Developers": "MLIFE.NS",
-        "Motherson Sumi": "MOTHERSUMI.NS",
-        "Indian Oil Corporation": "IOC.NS",
-        "IndusInd Bank": "INDUSINDBK.NS",
-        "JSW Steel": "JSWSTEEL.NS",
-        "Bajaj Auto": "BAJAJ-AUTO.NS",
-        "HDFC Asset Management": "HDFCAMC.NS",
-        "Nuvoco Vistas": "NUVOCO.NS",
-        "Shree Cement": "SHREECEM.NS",
-        "Bandhan Bank": "BANDHANBNK.NS",
-        "Colgate-Palmolive": "COLPAL.NS",
-        "Tata Steel": "TATASTEEL.NS",
-        "Muthoot Finance": "MUTHOOTFIN.NS",
-        "PVR": "PVR.NS",
-        "Amber Enterprises": "AMBER.NS",
-        "Indiabulls Housing Finance": "IBULHSGFIN.NS",
-        "Godrej Consumer Products": "GODREJCP.NS",
-        "Divi's Laboratories": "DIVISLAB.NS",
-        "Grasim Industries": "GRASIM.NS",
-        "Lupin": "LUPIN.NS",
-        "Avenue Supermarts": "DMART.NS",
-        "SBI Life Insurance": "SBILIFE.NS",
-        "Minda Industries": "MINDAIND.NS",
-        "Exide Industries": "EXIDEIND.NS",
-        "TVS Motor Company": "TVSMOTOR.NS",
-        "Hindalco Industries": "HINDALCO.NS",
-        "Bata India": "BATAINDIA.NS",
-        "Tata Power": "TATAPOWER.NS",
-        "V-Guard Industries": "VGUARD.NS",
-        "Walmart": "WMT",
-        "Tesla": "TSLA",
-        "Apple": "AAPL",
-        "Microsoft": "MSFT",
-        "Amazon": "AMZN",
-        "Meta": "META",
-        "Google": "GOOGL",
-        "NVIDIA": "NVDA",
-        "Berkshire Hathaway": "BRK.B",
-        "Johnson & Johnson": "JNJ",
-        "Procter & Gamble": "PG",
-        "Visa": "V",
-        "Pfizer": "PFE",
-        "Chevron": "CVX",
-        "Coca-Cola": "KO",
-        "PepsiCo": "PEP",
-        "Walt Disney": "DIS",
-        "McDonald's": "MCD",
-        "AbbVie": "ABBV",
-        "Intel": "INTC",
-        "Verizon": "VZ",
-        "IBM": "IBM",
-        "ExxonMobil": "XOM",
-        "Adobe": "ADBE",
-        "AT&T": "T",
-        "Starbucks": "SBUX",
-        "L'Oréal": "OR.PA",
-        "Nike": "NKE",
-        "Salesforce": "CRM",
-        "Netflix": "NFLX",
-        "Spotify": "SPOT",
-        "Bristol-Myers Squibb": "BMY",
-        "General Electric": "GE",
-        "Bristol Myers Squibb": "BMY",
-        "Lockheed Martin": "LMT",
-        "Raytheon Technologies": "RTX",
-        "3M": "MMM",
-        "Caterpillar": "CAT"
-    };
+    <script>
+        const form = document.getElementById('stock-form');
+        const chartImage = document.getElementById('chart-image');
 
+        form.addEventListener('submit', (event) => {
+            event.preventDefault();
+            const ticker = document.getElementById('ticker').value.trim();
 
-        const tickerInput = document.getElementById('ticker');
-        const suggestionsContainer = document.getElementById('suggestions-container');
-
-        tickerInput.addEventListener('input', function () {
-            const query = tickerInput.value.toLowerCase();
-            if (query.length > 0) {
-                const filteredStocks = Object.keys(stockNameToTicker).filter(stockName => 
-                    stockName.toLowerCase().includes(query)
-                );
-                if (filteredStocks.length > 0) {
-                    suggestionsContainer.innerHTML = filteredStocks.map(stockName => 
-                        `<div class="suggestion-item">${stockName}</div>`
-                    ).join('');
-                    suggestionsContainer.style.display = 'block';
-                    addSuggestionClickEvent();
-                } else {
-                    suggestionsContainer.style.display = 'none';
-                }
-            } else {
-                suggestionsContainer.style.display = 'none';
-            }
-        });
-
-        function addSuggestionClickEvent() {
-            const suggestionItems = document.querySelectorAll('.suggestion-item');
-            suggestionItems.forEach(item => {
-                item.addEventListener('click', function () {
-                    tickerInput.value = this.textContent;  // Set stock name
-                    suggestionsContainer.style.display = 'none';
-                    // Set the corresponding ticker
-                    const ticker = stockNameToTicker[this.textContent];
-                    fetchChart(ticker);  // Trigger chart fetching
-                });
-            });
-        }
-
-        function fetchChart(ticker) {
-            // Send the ticker value to the backend (Flask)
             fetch('/plot', {
                 method: 'POST',
-                body: new URLSearchParams({ ticker: ticker }),
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded'
-                }
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: new URLSearchParams({ ticker: ticker })
             })
             .then(response => response.blob())
             .then(data => {
-                // Show the generated chart image
-                const img = document.getElementById('chart-image');
-                img.src = URL.createObjectURL(data);
-                img.style.display = 'block';
-                document.getElementById('chart-container').style.opacity = 1;
-            });
-        }
-
-        document.getElementById('ticker-form').addEventListener('submit', function (e) {
-            e.preventDefault();
-            
-            // Get the selected stock name from the input box
-            const stockName = tickerInput.value;
-            const ticker = stockNameToTicker[stockName];
-
-            if (ticker) {
-                fetchChart(ticker);
-            } else {
-                alert("Please enter a valid stock name.");
-            }
+                const imageURL = URL.createObjectURL(data);
+                chartImage.src = imageURL;
+                chartImage.style.display = 'block';
+            })
+            .catch(error => console.error('Error fetching chart:', error));
         });
     </script>
 </body>
