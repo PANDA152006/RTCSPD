@@ -9,20 +9,21 @@ from io import BytesIO
 
 app = Flask(__name__)
 
-# Function to fetch intraday stock data
+# Define function to fetch intraday data
 def fetch_intraday_data(ticker_symbol, interval="15m"):
     stock_data = yf.download(ticker_symbol, interval=interval, period="1d")
     return stock_data
 
-# Function to detect candlestick patterns
+# Define function to identify candlestick patterns
 def detect_candlestick_patterns(data):
     data.columns = data.columns.get_level_values(0)
+
     data = data.rename(columns={'open': 'Open', 'high': 'High', 'low': 'Low', 'close': 'Close'})
     data.dropna(subset=['Open', 'High', 'Low', 'Close'], inplace=True)
 
     data['Pattern'] = np.nan
-    patterns = ['DOJI', 'HAMMER', 'ENGULFING']
 
+    patterns = ['DOJI', 'HAMMER', 'ENGULFING']
     for pattern in patterns:
         pattern_func = getattr(talib, f"CDL{pattern}")
         open_arr, high_arr, low_arr, close_arr = data['Open'].values, data['High'].values, data['Low'].values, data['Close'].values
@@ -33,17 +34,19 @@ def detect_candlestick_patterns(data):
 
     return data
 
-# Function to plot candlestick chart with patterns
+# Define function to plot candlestick chart with pattern markers using Matplotlib
 def plot_candlestick_with_patterns(data, ticker_symbol):
     fig, ax = plt.subplots(figsize=(10, 6))
 
     for i in range(len(data)):
         color = 'green' if data['Close'].iloc[i] > data['Open'].iloc[i] else 'red'
+
         timestamp = mdates.date2num(data.index[i])
 
         ax.plot([timestamp, timestamp], [data['Low'].iloc[i], data['High'].iloc[i]], color=color, lw=0.8)
         ax.add_patch(plt.Rectangle((timestamp - 0.005, min(data['Open'].iloc[i], data['Close'].iloc[i])),
-                                   width=0.01, height=abs(data['Close'].iloc[i] - data['Open'].iloc[i]), color=color))
+                                   width=0.01, height=abs(data['Close'].iloc[i] - data['Open'].iloc[i]),
+                                   color=color))
 
     pattern_colors = {'Doji': 'blue', 'Hammer': 'green', 'Engulfing': 'red'}
     for pattern_name, pattern_data in data[data['Pattern'].notna()].groupby('Pattern'):
@@ -61,19 +64,19 @@ def plot_candlestick_with_patterns(data, ticker_symbol):
     ax.grid(True)
     ax.legend()
 
+    # Save the plot to a BytesIO object and return it
     img = BytesIO()
     plt.savefig(img, format='png')
     img.seek(0)
-    plt.close(fig)
     return img
 
 @app.route('/')
 def index():
     return render_template('index.html')
 
-@app.route('/plot', methods=['POST'])
+@app.route('/plot', methods=['GET', 'POST'])
 def plot():
-    ticker = request.form.get('ticker', 'WIPRO.NS')  # Default ticker
+    ticker = request.form.get('ticker', 'WIPRO.NS')  # Default ticker is WIPRO.NS
     data = fetch_intraday_data(ticker)
     data = detect_candlestick_patterns(data)
 
